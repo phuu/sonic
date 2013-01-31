@@ -1,0 +1,152 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sonic</title>
+<meta name="viewport" content="width=device-width">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<style>
+body {background: black;}
+</style>
+
+<body>
+
+<script src="../src/sonic.js"></script>
+<script>
+
+var current = 0;
+
+var done = function () {
+  timers[current].stop();
+  current = (current + 1) % timers.length;
+  setTimeout(timers[current].play.bind(timers[current]), 500);
+};
+
+var draw = function(point, indexD, frameD) {
+    // point is an object { x: n, y: n, progress: n, index: n }
+    // point.progress is progress of point (0..1)
+    // relative to other points in that single draw
+
+    // indexD is relative to the drawn shape (the tail)
+    // frameD is the current frame (0..1)
+    // pointIndex is the the point's overall index within the points array
+
+    if (point.index < this.frame) {
+      this._.globalAlpha = 1;
+      this._.beginPath();
+      this._.moveTo(point.x, point.y);
+      this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
+      this._.closePath();
+      this._.fill();
+    }
+};
+
+var timers = [
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: '#bada55',
+    pointDistance: .01,
+    time: 2,
+    trailLength: 1,
+    path: [
+      ['line', 40, 30, 150, 30],
+      ['arc', 150, 60, 30, -90, 90],
+      ['line', 150, 90, 40, 90],
+      ['arc', 40, 60, 30, 90, 270],
+    ],
+    complete: done,
+    step: draw
+}),
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: 'red',
+    pointDistance: .01,
+    time: 2,
+    trailLength: 1,
+    path: [
+      ['arc', 150, 60, 30, -90, 270]
+    ],
+    complete: done,
+    step: draw
+}),
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: 'pink',
+    pointDistance: .01,
+    time: 2,
+    trailLength: 1,
+    path: [
+      ['line', 40, 30, 150, 30],
+      ['arc', 150, 60, 30, -90, 90],
+      ['line', 150, 90, 40, 90],
+      ['arc', 40, 60, 30, 90, 270],
+    ],
+    complete: done,
+    step: draw
+}),
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: 'rgba(255,255,0,.5)',
+    pointDistance: .05,
+    time: 2,
+    trailLength: 1,
+    path: [
+      ['line', 40, 30, 150, 30],
+      ['arc', 150, 60, 30, -90, 90],
+      ['line', 150, 90, 40, 90],
+      ['arc', 40, 60, 30, 90, 270],
+    ],
+    complete: done,
+    step: draw
+}),
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: 'red',
+    pointDistance: .01,
+    time: 8,
+    trailLength: 1,
+    path: [
+      ['arc', 150, 60, 30, -90, 270],
+      ['arc', 100, 60, 15, -90, 270],
+      ['arc', 130, 60, 8, -90, 270],
+      ['arc', 110, 60, 4, -90, 270]
+    ],
+    complete: done,
+    step: draw
+}),
+new Sonic({
+    width: 200,
+    height: 100,
+    padding: 0,
+    fillColor: '#dad',
+    pointDistance: .01,
+    time: 6,
+    trailLength: 1,
+    path: [
+      ['line', 40, 30, 150, 30],
+      ['arc', 150, 60, 30, -90, 90],
+      ['line', 150, 90, 40, 90],
+      ['arc', 40, 60, 30, 90, 270],
+    ],
+    complete: done,
+    step: draw
+})];
+
+timers.forEach(function (timer) {
+  document.body.appendChild(timer.canvas);
+});
+
+timers[0].play();
+
+</script>
+
+</body>
