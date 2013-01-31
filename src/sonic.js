@@ -7,9 +7,20 @@
  * the extent permitted by applicable law. You can redistribute it
  * and/or modify it under the terms of the Do What The Fuck You Want
  * To Public License, Version 2, as published by Sam Hocevar. See
- * http://sam.zoy.org/wtfpl/COPYING for more details. */ 
+ * http://sam.zoy.org/wtfpl/COPYING for more details. */
 
 (function(){
+
+	var requestAnimFrame = (function(){
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            window.oRequestAnimationFrame      ||
+            window.msRequestAnimationFrame     ||
+            function( callback ){
+              window.setTimeout(callback, 1000 / 60);
+            };
+  })();
 
 	var emptyFn = function(){};
 
@@ -21,11 +32,12 @@
 		this.multiplier = d.multiplier || 1;
 		this.padding = d.padding || 0;
 
-		this.fps = d.fps || 25;
+		this.fps = this.fps || 25;
 
-		this.stepsPerFrame = ~~d.stepsPerFrame || 1;
+		this.stepsPerFrame = d.stepsPerFrame || 1;
 		this.trailLength = d.trailLength || 1;
 		this.pointDistance = d.pointDistance || .05;
+		this.time = d.time || false;
 
 		this.domClass = d.domClass || 'sonic';
 
@@ -37,8 +49,10 @@
 			d.step || stepMethods.square;
 
 		this._setup = d.setup || emptyFn;
+		this._preDraw = d.preDraw || emptyFn;
 		this._teardown = d.teardown || emptyFn;
 		this._preStep = d.preStep || emptyFn;
+		this._complete = d.complete || emptyFn;
 
 		this.width = d.width;
 		this.height = d.height;
@@ -49,6 +63,7 @@
 		this.domClass = d.domClass || 'sonic';
 
 		this.setup();
+		this._setup();
 
 	}
 
@@ -67,48 +82,48 @@
 
 	var pathMethods = Sonic.pathMethods = {
 		bezier: function(t, p0x, p0y, p1x, p1y, c0x, c0y, c1x, c1y) {
-			
-		    t = 1-t;
 
-		    var i = 1-t,
-		        x = t*t,
-		        y = i*i,
-		        a = x*t,
-		        b = 3 * x * i,
-		        c = 3 * t * y,
-		        d = y * i;
+				t = 1-t;
 
-		    return [
-		        a * p0x + b * c0x + c * c1x + d * p1x,
-		        a * p0y + b * c0y + c * c1y + d * p1y
-		    ]
+				var i = 1-t,
+						x = t*t,
+						y = i*i,
+						a = x*t,
+						b = 3 * x * i,
+						c = 3 * t * y,
+						d = y * i;
+
+				return [
+						a * p0x + b * c0x + c * c1x + d * p1x,
+						a * p0y + b * c0y + c * c1y + d * p1y
+				];
 
 		},
 		arc: function(t, cx, cy, radius, start, end) {
 
-		    var point = (end - start) * t + start;
+				var point = (end - start) * t + start;
 
-		    var ret = [
-		        (Math.cos(point) * radius) + cx,
-		        (Math.sin(point) * radius) + cy
-		    ];
+				var ret = [
+						(Math.cos(point) * radius) + cx,
+						(Math.sin(point) * radius) + cy
+				];
 
-		    ret.angle = point;
-		    ret.t = t;
+				ret.angle = point;
+				ret.t = t;
 
-		    return ret;
+				return ret;
 
 		},
 		line: function(t, sx, sy, ex, ey) {
 			return [
 				(ex - sx) * t + sx,
 				(ey - sy) * t + sy
-			]
+			];
 		}
 	};
 
 	var stepMethods = Sonic.stepMethods = {
-		
+
 		square: function(point, i, f, color, alpha) {
 			this._.fillRect(point.x - 3, point.y - 3, 6, 6);
 		},
@@ -129,16 +144,16 @@
 
 		}
 
-	}
+	};
 
 	Sonic.prototype = {
 		setup: function() {
 
 			var args,
-				type,
-				method,
-				value,
-				data = this.data;
+					type,
+					method,
+					value,
+					data = this.data;
 
 			this.canvas = document.createElement('canvas');
 			this._ = this.canvas.getContext('2d');
@@ -171,7 +186,7 @@
 						case argTypes.DEGREE:
 							value *= Math.PI/180;
 							break;
-					};
+					}
 
 					args[a] = value;
 
@@ -180,7 +195,7 @@
 				args.unshift(0);
 
 				for (var r, pd = this.pointDistance, t = pd; t <= 1; t += pd) {
-					
+
 					// Avoid crap like 0.15000000000000002
 					t = Math.round(t*1/pd) / (1/pd);
 
@@ -198,27 +213,36 @@
 
 			}
 
+			if (this.time) {
+				// Figure out the target speed with some heurisitc correction for timing issues
+				this.stepsPerFrame = (this.points.length / (this.time * 60)) * 1 + (1 / (this.time * 5));
+			} else {
+				this.stepsPerFrame = this.stepsPerFrame * (this.fps / 60);
+			}
+
 			this.frame = 0;
-			//this.prep(this.frame);
+			this.partialFrame = 0;
 
 		},
 
 		prep: function(frame) {
 
+			this._preDraw();
+
 			if (frame in this.imageData) {
-				return;
+				return true;
 			}
 
-			this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
-			
-			var points = this.points,
-				pointsLength = points.length,
-				pd = this.pointDistance,
-				point,
-				index,
-				frameD;
+		},
 
-			this._setup();
+		render: function(frame) {
+
+			var points = this.points,
+					pointsLength = points.length,
+					pd = this.pointDistance,
+					point,
+					index,
+					frameD;
 
 			for (var i = -1, l = pointsLength*this.trailLength; ++i < l && !this.stopped;) {
 
@@ -235,13 +259,14 @@
 				this._.fillStyle = this.fillColor;
 				this._.strokeStyle = this.strokeColor;
 
-				frameD = frame/(this.points.length-1);
+				frameD = frame/(pointsLength-1);
 				indexD = i/(l-1);
+				indexPD = i/(pointsLength-1);
 
 				this._preStep(point, indexD, frameD);
-				this.stepMethod(point, indexD, frameD);
+				this.stepMethod(point, indexD, frameD, this.points.indexOf(point), frame);
 
-			} 
+			}
 
 			this._teardown();
 
@@ -249,21 +274,23 @@
 				this._.getImageData(0, 0, this.fullWidth, this.fullWidth)
 			);
 
-			return true;
-
 		},
 
 		draw: function() {
-			
-			if (!this.prep(this.frame)) {
 
-				this._.clearRect(0, 0, this.fullWidth, this.fullWidth);
+			var cached = this.prep(this.frame);
 
+			if (this.stopped) return;
+
+			this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+
+			if (cached) {
 				this._.putImageData(
 					this.imageData[this.frame],
 					0, 0
 				);
-
+			} else {
+				this.render(this.frame);
 			}
 
 			this.iterateFrame();
@@ -271,11 +298,16 @@
 		},
 
 		iterateFrame: function() {
-			
-			this.frame += this.stepsPerFrame;
 
 			if (this.frame >= this.points.length) {
-				this.frame = 0;
+				this._complete();
+				if (!this.stopped) {
+					this.frame = 0;
+					this.partialFrame = 0;
+				}
+			} else {
+				this.partialFrame = Math.round((this.partialFrame + this.stepsPerFrame) * 1000) / 1000;
+				this.frame = Math.round(this.partialFrame);
 			}
 
 		},
@@ -286,15 +318,15 @@
 
 			var hoc = this;
 
-			this.timer = setInterval(function(){
+			(function loop(){
+				if(!this.stopped) requestAnimFrame(loop);
 				hoc.draw();
-			}, 1000 / this.fps);
+			}());
 
 		},
 		stop: function() {
 
 			this.stopped = true;
-			this.timer && clearInterval(this.timer);
 
 		}
 	};

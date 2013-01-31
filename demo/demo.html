@@ -19,7 +19,7 @@ body {
 	margin: 0 auto;
 }
 
-#in { 
+#in {
 	overflow: hidden;
 }
 
@@ -35,7 +35,7 @@ div.l {
 	position: relative;
 }
 .sonic {
-	
+
 }
 canvas { display: block; }
 </style>
@@ -68,7 +68,7 @@ var loaders = [
 		pointDistance: .03,
 
 		strokeColor: '#FF7B24',
-		
+
 		step: 'fader',
 
 		multiplier: 2,
@@ -78,7 +78,7 @@ var loaders = [
 		},
 
 		path: [
-		
+
 			['arc', 10, 10, 10, -270, -90],
 			['bezier', 10, 0, 40, 20, 20, 0, 30, 20],
 			['arc', 40, 10, 10, 90, -90],
@@ -304,7 +304,7 @@ var loaders = [
 		fillColor: '#05E2FF',
 
 		step: function(point, index) {
-			
+
 			this._.beginPath();
 			this._.moveTo(point.x, point.y);
 			this._.arc(point.x, point.y, index * 7, 0, Math.PI*2, false);
@@ -364,7 +364,7 @@ var d, a, container = document.getElementById('in');
 
 
 for (var i = -1, l = loaders.length; ++i < l;) {
-	
+
 	d = document.createElement('div');
 	d.className = 'l';
 
@@ -380,6 +380,6 @@ for (var i = -1, l = loaders.length; ++i < l;) {
 
 }
 
-</script> 
+</script>
 
 </body>

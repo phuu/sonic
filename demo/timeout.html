@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sonic</title>
+
+<style>
+body {background: black;}
+</style>
+
+<body>
+
+<script src="../src/sonic.js"></script>
+<script>
+
+var start;
+
+var timeout = new Sonic({
+
+    width: 200,
+    height: 200,
+    padding: 0,
+
+    fillColor: 'rgba(0,255,200,.8)',
+
+    pointDistance: .01,
+    time: 20,
+    trailLength: 1,
+
+    path: [
+        ['line', 40, 30, 150, 30],
+        ['arc', 150, 60, 30, -90, 90],
+        ['line', 150, 90, 40, 90],
+        ['arc', 40, 60, 30, 90, 270],
+    ],
+
+    setup: function () {},
+
+    complete: function () {
+        this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+        this.render(this.frame);
+        this.stop();
+        console.log(this.points.length, this.frame);
+        console.log('%dms', +(new Date) - start);
+    },
+
+    step: function(point, indexD, frameD, pointIndex, frame) {
+
+        // point is an object { x: n, y: n, progress: n}
+        // point.progress is progress of point (0..1)
+        // relative to other points in that single draw
+
+        // indexD is the progress relative to entire shape
+
+        // frameD is the current frame (0..1)
+
+
+        this._.fillStyle = this.fillColor;
+
+        if (pointIndex < frame) {
+            this._.globalAlpha = 1;
+        } else {
+            this._.globalAlpha = 0;
+        }
+
+
+        this._.beginPath();
+        this._.moveTo(point.x, point.y);
+        this._.arc(point.x, point.y, 2, 0, Math.PI*2, false);
+        this._.closePath();
+        this._.fill();
+
+    }
+
+});
+
+start = +(new Date);
+
+timeout.play();
+
+document.body.appendChild(timeout.canvas);
+
+document.addEventListener('click', function () {
+    timeout.stop();
+    timeout.frame = 0;
+    // timeout.play();
+});
+
+</script>
+
+</body>
