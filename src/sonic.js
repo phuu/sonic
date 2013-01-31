@@ -1,8 +1,10 @@
 /*
- * Sonic 0.2
+ * Sonic 0.3
  * --
  * https://github.com/phuu/Sonic
  * --
+ * Originally by James Padolsey: https://github.com/padolsey/Sonic
+ *
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
  * and/or modify it under the terms of the Do What The Fuck You Want
@@ -49,10 +51,11 @@
 			stepMethods[d.step] :
 			d.step || stepMethods.square;
 
+		// Hooks
 		this._setup = d.setup || emptyFn;
 		this._preDraw = d.preDraw || emptyFn;
-		this._teardown = d.teardown || emptyFn;
 		this._preStep = d.preStep || emptyFn;
+		this._postDraw = d._postDraw || emptyFn;
 		this._complete = d.complete || emptyFn;
 
 		this.width = d.width;
@@ -84,35 +87,35 @@
 	var pathMethods = Sonic.pathMethods = {
 		bezier: function(t, p0x, p0y, p1x, p1y, c0x, c0y, c1x, c1y) {
 
-				t = 1-t;
+			t = 1-t;
 
-				var i = 1-t,
-						x = t*t,
-						y = i*i,
-						a = x*t,
-						b = 3 * x * i,
-						c = 3 * t * y,
-						d = y * i;
+			var i = 1-t,
+					x = t*t,
+					y = i*i,
+					a = x*t,
+					b = 3 * x * i,
+					c = 3 * t * y,
+					d = y * i;
 
-				return [
-						a * p0x + b * c0x + c * c1x + d * p1x,
-						a * p0y + b * c0y + c * c1y + d * p1y
-				];
+			return [
+				a * p0x + b * c0x + c * c1x + d * p1x,
+				a * p0y + b * c0y + c * c1y + d * p1y
+			];
 
 		},
 		arc: function(t, cx, cy, radius, start, end) {
 
-				var point = (end - start) * t + start;
+			var point = (end - start) * t + start;
 
-				var ret = [
-						(Math.cos(point) * radius) + cx,
-						(Math.sin(point) * radius) + cy
-				];
+			var ret = [
+				(Math.cos(point) * radius) + cx,
+				(Math.sin(point) * radius) + cy
+			];
 
-				ret.angle = point;
-				ret.t = t;
+			ret.angle = point;
+			ret.t = t;
 
-				return ret;
+			return ret;
 
 		},
 		line: function(t, sx, sy, ex, ey) {
@@ -221,16 +224,6 @@
 
 		},
 
-		prep: function(frame) {
-
-			this._preDraw();
-
-			if (frame in this.imageData) {
-				return true;
-			}
-
-		},
-
 		render: function(frame) {
 
 			var points = this.points,
@@ -243,13 +236,11 @@
 			for (var i = -1, l = pointsLength*this.trailLength; ++i < l && !this.stopped;) {
 
 				index = frame + i;
-
 				point = points[index] || points[index - pointsLength];
 
 				if (!point) continue;
 
 				this.alpha = Math.round(1000*(i/(l-1)))/1000;
-
 				this._.globalAlpha = this.alpha;
 
 				this._.fillStyle = this.fillColor;
@@ -264,30 +255,18 @@
 
 			}
 
-			this._teardown();
-
-			this.imageData[frame] = (
-				this._.getImageData(0, 0, this.fullWidth, this.fullWidth)
-			);
-
 		},
 
 		draw: function() {
 
 			if (this.stopped) return;
 
-			var cached = this.prep(this.frame);
+			this._preDraw();
 
 			this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+			this.render(this.frame);
 
-			if (cached) {
-				this._.putImageData(
-					this.imageData[this.frame],
-					0, 0
-				);
-			} else {
-				this.render(this.frame);
-			}
+			this._postDraw();
 
 			this.iterateFrame();
 
@@ -331,10 +310,13 @@
 		},
 
 		stop: function() {
+
 			this.stopped = true;
+
 		},
 
 		reset: function () {
+
 			// Decided what timing method to use
 			if (this.time) {
 				this.start = +(new Date());
@@ -348,6 +330,7 @@
 			this.partialFrame = 0;
 			this.stopped = false;
 		}
+
 	};
 
 	window.Sonic = Sonic;
