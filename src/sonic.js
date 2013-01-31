@@ -33,10 +33,11 @@
 		this.padding = d.padding || 0;
 
 		this.fps = this.fps || 25;
+		this.targetFps = 60;
 
-		this.stepsPerFrame = d.stepsPerFrame || 1;
+		this.distancePerFrame = d.distancePerFrame || 1;
 		this.trailLength = d.trailLength || 1;
-		this.pointDistance = d.pointDistance || .05;
+		this.pointDistance = d.pointDistance || 0.05;
 		this.time = d.time || false;
 
 		this.domClass = d.domClass || 'sonic';
@@ -206,7 +207,8 @@
 					this.points.push({
 						x: r[0],
 						y: r[1],
-						progress: t
+						progress: t,
+						index: this.points.length
 					});
 
 				}
@@ -214,10 +216,9 @@
 			}
 
 			if (this.time) {
-				// Figure out the target speed with some heurisitc correction for timing issues
-				this.stepsPerFrame = (this.points.length / (this.time * 60)) * 1 + (1 / (this.time * 5));
+				this.start = +(new Date());
 			} else {
-				this.stepsPerFrame = this.stepsPerFrame * (this.fps / 60);
+				this.distancePerFrame = this.distancePerFrame * (this.fps / this.targetFps);
 			}
 
 			this.frame = 0;
@@ -264,7 +265,7 @@
 				indexPD = i/(pointsLength-1);
 
 				this._preStep(point, indexD, frameD);
-				this.stepMethod(point, indexD, frameD, this.points.indexOf(point), frame);
+				this.stepMethod(point, indexD, frameD);
 
 			}
 
@@ -306,7 +307,14 @@
 					this.partialFrame = 0;
 				}
 			} else {
-				this.partialFrame = Math.round((this.partialFrame + this.stepsPerFrame) * 1000) / 1000;
+				if (this.time) {
+					// Use the time to calculate precisely what frame we should be on
+					var diff = +(new Date()) - this.start;
+					this.partialFrame = this.points.length * (diff / (this.time * 1000));
+				} else {
+					// Otherwise use the target
+					this.partialFrame = Math.round((this.partialFrame + this.distancePerFrame) * 1000) / 1000;
+				}
 				this.frame = Math.round(this.partialFrame);
 			}
 

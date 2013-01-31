@@ -15,14 +15,14 @@ var start;
 
 var timeout = new Sonic({
 
-    width: 200,
-    height: 200,
+    width: 800,
+    height: 800,
     padding: 0,
 
-    fillColor: 'rgba(0,255,200,.8)',
+    fillColor: 'rgba(200,255,0,.8)',
 
     pointDistance: .01,
-    time: 20,
+    time: 10,
     trailLength: 1,
 
     path: [
@@ -35,38 +35,31 @@ var timeout = new Sonic({
     setup: function () {},
 
     complete: function () {
-        this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
-        this.render(this.frame);
         this.stop();
         console.log(this.points.length, this.frame);
         console.log('%dms', +(new Date) - start);
     },
 
-    step: function(point, indexD, frameD, pointIndex, frame) {
+    preDraw: function () {},
 
-        // point is an object { x: n, y: n, progress: n}
+    step: function(point, indexD, frameD) {
+
+        // point is an object { x: n, y: n, progress: n, index: n }
         // point.progress is progress of point (0..1)
         // relative to other points in that single draw
 
-        // indexD is the progress relative to entire shape
-
+        // indexD is relative to the drawn shape (the tail)
         // frameD is the current frame (0..1)
+        // pointIndex is the the point's overall index within the points array
 
-
-        this._.fillStyle = this.fillColor;
-
-        if (pointIndex < frame) {
+        if (point.index < this.frame) {
             this._.globalAlpha = 1;
-        } else {
-            this._.globalAlpha = 0;
+            this._.beginPath();
+            this._.moveTo(point.x, point.y);
+            this._.arc(point.x, point.y, 2, 0, Math.PI*2, false);
+            this._.closePath();
+            this._.fill();
         }
-
-
-        this._.beginPath();
-        this._.moveTo(point.x, point.y);
-        this._.arc(point.x, point.y, 2, 0, Math.PI*2, false);
-        this._.closePath();
-        this._.fill();
 
     }
 
