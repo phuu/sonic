@@ -1,7 +1,7 @@
 /*
- * Sonic 0.1
+ * Sonic 0.2
  * --
- * https://github.com/jamespadolsey/Sonic
+ * https://github.com/phuu/Sonic
  * --
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
@@ -11,16 +11,16 @@
 
 (function(){
 
-	var requestAnimFrame = (function(){
-    return  window.requestAnimationFrame       ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame    ||
-            window.oRequestAnimationFrame      ||
-            window.msRequestAnimationFrame     ||
-            function( callback ){
-              window.setTimeout(callback, 1000 / 60);
-            };
-  })();
+	window.requestAnimationFrame = (function(){
+		return  window.requestAnimationFrame       ||
+						window.webkitRequestAnimationFrame ||
+						window.mozRequestAnimationFrame    ||
+						window.oRequestAnimationFrame      ||
+						window.msRequestAnimationFrame     ||
+						function( callback ){
+							window.setTimeout(callback, 1000 / 60);
+						};
+	})();
 
 	var emptyFn = function(){};
 
@@ -35,7 +35,7 @@
 		this.fps = this.fps || 25;
 		this.targetFps = 60;
 
-		this.distancePerFrame = d.distancePerFrame || 1;
+		this.stepsPerFrame = d.stepsPerFrame || 1;
 		this.trailLength = d.trailLength || 1;
 		this.pointDistance = d.pointDistance || 0.05;
 		this.time = d.time || false;
@@ -166,11 +166,13 @@
 
 			this.points = [];
 
+			// Extract each shape
 			for (var i = -1, l = data.length; ++i < l;) {
 
 				args = data[i].slice(1);
 				method = data[i][0];
 
+				// Adjust values for given shape type
 				if (method in argSignatures) for (var a = -1, al = args.length; ++a < al;) {
 
 					type = argSignatures[method][a];
@@ -195,6 +197,7 @@
 
 				args.unshift(0);
 
+				// Plot points and add to points array
 				for (var r, pd = this.pointDistance, t = pd; t <= 1; t += pd) {
 
 					// Avoid crap like 0.15000000000000002
@@ -204,6 +207,7 @@
 
 					r = pathMethods[method].apply(null, args);
 
+					// point index is cached with the point
 					this.points.push({
 						x: r[0],
 						y: r[1],
@@ -214,15 +218,6 @@
 				}
 
 			}
-
-			if (this.time) {
-				this.start = +(new Date());
-			} else {
-				this.distancePerFrame = this.distancePerFrame * (this.fps / this.targetFps);
-			}
-
-			this.frame = 0;
-			this.partialFrame = 0;
 
 		},
 
@@ -279,9 +274,9 @@
 
 		draw: function() {
 
-			var cached = this.prep(this.frame);
-
 			if (this.stopped) return;
+
+			var cached = this.prep(this.frame);
 
 			this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
 
@@ -301,18 +296,19 @@
 		iterateFrame: function() {
 
 			if (this.frame >= this.points.length) {
+				// One loop finished, fire off the hook
 				this._complete();
 				if (!this.stopped) {
-					this.frame = 0;
-					this.partialFrame = 0;
+					this.reset();
 				}
 			} else {
+				// We're still running so increment accordingly
 				if (this.time) {
 					// Use the time to calculate precisely what frame we should be on
 					var diff = +(new Date()) - this.start;
 					this.partialFrame = this.points.length * (diff / (this.time * 1000));
 				} else {
-					// Otherwise use the target
+					// No time was set, so use the target
 					this.partialFrame = Math.round((this.partialFrame + this.distancePerFrame) * 1000) / 1000;
 				}
 				this.frame = Math.round(this.partialFrame);
@@ -322,20 +318,35 @@
 
 		play: function() {
 
-			this.stopped = false;
-
-			var hoc = this;
-
-			(function loop(){
-				if(!this.stopped) requestAnimFrame(loop);
-				hoc.draw();
-			}());
+			this.reset();
+			this.loop();
 
 		},
+
+		loop: function () {
+
+			if (!this.stopped) requestAnimationFrame(this.loop.bind(this));
+			this.draw();
+
+		},
+
 		stop: function() {
-
 			this.stopped = true;
+		},
 
+		reset: function () {
+			// Decided what timing method to use
+			if (this.time) {
+				this.start = +(new Date());
+			} else {
+				// Otherwise calculate a distance
+				this.distancePerFrame = this.stepsPerFrame * (this.fps / this.targetFps);
+			}
+
+			// Initialize the frame data
+			this.frame = 0;
+			this.partialFrame = 0;
+			this.stopped = false;
 		}
 	};
 

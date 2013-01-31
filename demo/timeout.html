@@ -1,6 +1,8 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>Sonic</title>
+<meta name="viewport" content="width=device-width">
+<meta name="apple-mobile-web-app-capable" content="yes" />
 
 <style>
 body {background: black;}
@@ -15,14 +17,14 @@ var start;
 
 var timeout = new Sonic({
 
-    width: 800,
-    height: 800,
+    width: 200,
+    height: 200,
     padding: 0,
 
-    fillColor: 'rgba(200,255,0,.8)',
+    fillColor: '#bada55',
 
     pointDistance: .01,
-    time: 10,
+    time: 5,
     trailLength: 1,
 
     path: [
@@ -32,15 +34,15 @@ var timeout = new Sonic({
         ['arc', 40, 60, 30, 90, 270],
     ],
 
-    setup: function () {},
-
     complete: function () {
         this.stop();
+        setTimeout(function () {
+            start = +(new Date);
+            timeout.play();
+        }, 500);
         console.log(this.points.length, this.frame);
         console.log('%dms', +(new Date) - start);
     },
-
-    preDraw: function () {},
 
     step: function(point, indexD, frameD) {
 
@@ -56,7 +58,7 @@ var timeout = new Sonic({
             this._.globalAlpha = 1;
             this._.beginPath();
             this._.moveTo(point.x, point.y);
-            this._.arc(point.x, point.y, 2, 0, Math.PI*2, false);
+            this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
             this._.closePath();
             this._.fill();
         }
@@ -70,12 +72,6 @@ start = +(new Date);
 timeout.play();
 
 document.body.appendChild(timeout.canvas);
-
-document.addEventListener('click', function () {
-    timeout.stop();
-    timeout.frame = 0;
-    // timeout.play();
-});
 
 </script>
 
