@@ -13,7 +13,7 @@
 
 (function(){
 
-  window.requestAnimationFrame = (function(){
+  var requestAnimationFrame = (function(){
     return  window.requestAnimationFrame       ||
             window.webkitRequestAnimationFrame ||
             window.mozRequestAnimationFrame    ||
