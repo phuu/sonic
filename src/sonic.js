@@ -29,7 +29,6 @@
 	function Sonic(d) {
 
 		this.data = d.path || d.data;
-		this.imageData = [];
 
 		this.multiplier = d.multiplier || 1;
 		this.padding = d.padding || 0;
@@ -128,11 +127,11 @@
 
 	var stepMethods = Sonic.stepMethods = {
 
-		square: function(point, i, f, color, alpha) {
+		square: function(point, i, f) {
 			this._.fillRect(point.x - 3, point.y - 3, 6, 6);
 		},
 
-		fader: function(point, i, f, color, alpha) {
+		fader: function(point, i, f) {
 
 			this._.beginPath();
 
@@ -146,7 +145,28 @@
 
 			this._last = point;
 
-		}
+		},
+
+		timer: function(point, i, f) {
+
+      // point is an object { x: n, y: n, progress: n, index: n }
+      // point.progress is progress of point (0..1)
+      // relative to other points in that single draw
+
+      // i is relative to the drawn shape (the tail) (0..1)
+      // f is the current frame (0..1)
+      // pointIndex is the the point's overall index within the points array
+
+      if (point.index < this.frame) {
+        this._.globalAlpha = 1;
+        this._.beginPath();
+        this._.moveTo(point.x, point.y);
+        this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
+        this._.closePath();
+        this._.fill();
+      }
+
+    }
 
 	};
 
@@ -248,7 +268,6 @@
 
 				frameD = frame/(pointsLength-1);
 				indexD = i/(l-1);
-				indexPD = i/(pointsLength-1);
 
 				this._preStep(point, indexD, frameD);
 				this.stepMethod(point, indexD, frameD);

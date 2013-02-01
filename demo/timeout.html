@@ -25,7 +25,6 @@ var timeout = new Sonic({
 
     pointDistance: .01,
     time: 5,
-    trailLength: 1,
 
     path: [
         ['line', 40, 30, 150, 30],
@@ -44,26 +43,7 @@ var timeout = new Sonic({
         console.log('%dms', +(new Date) - start);
     },
 
-    step: function(point, indexD, frameD) {
-
-        // point is an object { x: n, y: n, progress: n, index: n }
-        // point.progress is progress of point (0..1)
-        // relative to other points in that single draw
-
-        // indexD is relative to the drawn shape (the tail)
-        // frameD is the current frame (0..1)
-        // pointIndex is the the point's overall index within the points array
-
-        if (point.index < this.frame) {
-            this._.globalAlpha = 1;
-            this._.beginPath();
-            this._.moveTo(point.x, point.y);
-            this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
-            this._.closePath();
-            this._.fill();
-        }
-
-    }
+    step: 'timer'
 
 });
 
