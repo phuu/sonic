@@ -1,0 +1,216 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sonic</title>
+<meta name="viewport" content="width=device-width">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+<style>
+body { background: black; }
+</style>
+
+<body>
+
+<script src="../src/sonic.js"></script>
+<script>
+
+var done = function () {
+  this.stop();
+  setTimeout(this.play.bind(this), 500);
+};
+
+var draw = function(point, i, f) {
+
+  if (point.index !== this.frame) return;
+
+  // point is an object { x: n, y: n, progress: n, index: n }
+  // point.progress is progress of point (0..1)
+  // relative to other points in that single draw
+
+  // i is relative to the drawn shape (the tail) (0..1)
+  // f is the current frame (0..1)
+  // pointIndex is the the point's overall index within the points array
+
+  this._.globalAlpha = 1;
+  this._.beginPath();
+  this._.moveTo(point.x, point.y);
+  this._.arc(point.x, point.y, this.dotRadius, 0, Math.PI*2, false);
+  this._.closePath();
+  this._.fill();
+
+};
+
+var timers = [
+new Sonic({
+    width: 100,
+    height: 100,
+    fillColor: '#ff0',
+    pointDistance: 0.01,
+    dotRadius: 2,
+    time: 20,
+    clearEveryFrame: false,
+    path: [
+        ['line', 50, 10, 86, 10],
+          ['arc', 85, 15, 5, -90, 0],
+        ['line', 90, 15, 90, 86],
+          ['arc', 85, 85, 5, 0, 90],
+        ['line', 86, 90, 15, 90],
+          ['arc', 15, 85, 5, 90, 180],
+        ['line', 10, 86, 10, 15],
+          ['arc', 15, 15, 5, -180, -90],
+        ['line', 15, 10, 50, 10],
+    ],
+    path: [
+        ['line', 50, 10, 80, 10],
+          ['bezier', 80, 10, 90, 20, 90, 10, 90, 10],
+        ['line', 90, 20, 90, 80],
+          ['bezier', 90, 80, 80, 90, 90, 90, 90, 90],
+        ['line', 80, 90, 20, 90],
+          ['bezier', 20, 90, 10, 80, 10, 90, 10, 90],
+        ['line', 10, 80, 10, 20],
+          ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
+        ['line', 20, 10, 50, 10],
+    ],
+    step: draw,
+    complete: done
+}),
+new Sonic({
+    width: 100,
+    height: 100,
+    fillColor: '#0f0',
+    pointDistance: 0.01,
+    dotRadius: 2,
+    time: 20,
+    clearEveryFrame: false,
+    path: [
+        ['line', 50, 10, 86, 10],
+          ['arc', 85, 15, 5, -90, 0],
+        ['line', 90, 15, 90, 86],
+          ['arc', 85, 85, 5, 0, 90],
+        ['line', 86, 90, 15, 90],
+          ['arc', 15, 85, 5, 90, 180],
+        ['line', 10, 86, 10, 15],
+          ['arc', 15, 15, 5, -180, -90],
+        ['line', 15, 10, 50, 10],
+    ],
+    path: [
+        ['line', 50, 10, 80, 10],
+          ['bezier', 80, 10, 90, 20, 90, 10, 90, 10],
+        ['line', 90, 20, 90, 80],
+          ['bezier', 90, 80, 80, 90, 90, 90, 90, 90],
+        ['line', 80, 90, 20, 90],
+          ['bezier', 20, 90, 10, 80, 10, 90, 10, 90],
+        ['line', 10, 80, 10, 20],
+          ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
+        ['line', 20, 10, 50, 10],
+    ],
+    step: draw,
+    complete: done
+}),
+new Sonic({
+    width: 100,
+    height: 100,
+    fillColor: '#f0f',
+    pointDistance: 0.01,
+    dotRadius: 2,
+    time: 20,
+    clearEveryFrame: false,
+    path: [
+        ['line', 50, 10, 86, 10],
+          ['arc', 85, 15, 5, -90, 0],
+        ['line', 90, 15, 90, 86],
+          ['arc', 85, 85, 5, 0, 90],
+        ['line', 86, 90, 15, 90],
+          ['arc', 15, 85, 5, 90, 180],
+        ['line', 10, 86, 10, 15],
+          ['arc', 15, 15, 5, -180, -90],
+        ['line', 15, 10, 50, 10],
+    ],
+    path: [
+        ['line', 50, 10, 80, 10],
+          ['bezier', 80, 10, 90, 20, 90, 10, 90, 10],
+        ['line', 90, 20, 90, 80],
+          ['bezier', 90, 80, 80, 90, 90, 90, 90, 90],
+        ['line', 80, 90, 20, 90],
+          ['bezier', 20, 90, 10, 80, 10, 90, 10, 90],
+        ['line', 10, 80, 10, 20],
+          ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
+        ['line', 20, 10, 50, 10],
+    ],
+    step: draw,
+    complete: done
+}),
+new Sonic({
+    width: 100,
+    height: 100,
+    fillColor: '#f00',
+    pointDistance: 0.01,
+    dotRadius: 2,
+    time: 20,
+    clearEveryFrame: false,
+    path: [
+        ['line', 50, 10, 86, 10],
+          ['arc', 85, 15, 5, -90, 0],
+        ['line', 90, 15, 90, 86],
+          ['arc', 85, 85, 5, 0, 90],
+        ['line', 86, 90, 15, 90],
+          ['arc', 15, 85, 5, 90, 180],
+        ['line', 10, 86, 10, 15],
+          ['arc', 15, 15, 5, -180, -90],
+        ['line', 15, 10, 50, 10],
+    ],
+    path: [
+        ['line', 50, 10, 80, 10],
+          ['bezier', 80, 10, 90, 20, 90, 10, 90, 10],
+        ['line', 90, 20, 90, 80],
+          ['bezier', 90, 80, 80, 90, 90, 90, 90, 90],
+        ['line', 80, 90, 20, 90],
+          ['bezier', 20, 90, 10, 80, 10, 90, 10, 90],
+        ['line', 10, 80, 10, 20],
+          ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
+        ['line', 20, 10, 50, 10],
+    ],
+    step: draw,
+    complete: done
+}),
+new Sonic({
+    width: 100,
+    height: 100,
+    fillColor: '#08f',
+    pointDistance: 0.01,
+    dotRadius: 2,
+    time: 20,
+    clearEveryFrame: false,
+    path: [
+        ['line', 50, 10, 86, 10],
+          ['arc', 85, 15, 5, -90, 0],
+        ['line', 90, 15, 90, 86],
+          ['arc', 85, 85, 5, 0, 90],
+        ['line', 86, 90, 15, 90],
+          ['arc', 15, 85, 5, 90, 180],
+        ['line', 10, 86, 10, 15],
+          ['arc', 15, 15, 5, -180, -90],
+        ['line', 15, 10, 50, 10],
+    ],
+    path: [
+        ['line', 50, 10, 80, 10],
+          ['bezier', 80, 10, 90, 20, 90, 10, 90, 10],
+        ['line', 90, 20, 90, 80],
+          ['bezier', 90, 80, 80, 90, 90, 90, 90, 90],
+        ['line', 80, 90, 20, 90],
+          ['bezier', 20, 90, 10, 80, 10, 90, 10, 90],
+        ['line', 10, 80, 10, 20],
+          ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
+        ['line', 20, 10, 50, 10],
+    ],
+    step: draw,
+    complete: done
+})];
+
+timers.forEach(function (timer) {
+  document.body.appendChild(timer.canvas);
+  timer.play();
+});
+
+</script>
+
+</body>

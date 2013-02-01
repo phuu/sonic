@@ -45,6 +45,15 @@
 
     this.fillColor = d.fillColor || '#FFF';
     this.strokeColor = d.strokeColor || '#FFF';
+    this.dotRadius = d.dotRadius || 3;
+    this.clearEveryFrame = true;
+    if (d.clearEveryFrame !== undefined) {
+      this.clearEveryFrame = d.clearEveryFrame;
+    }
+    this.clearOnReset = true;
+    if (d.clearOnReset !== undefined) {
+      this.clearOnReset = d.clearOnReset;
+    }
 
     this.stepMethod = typeof d.step == 'string' ?
       stepMethods[d.step] :
@@ -161,7 +170,7 @@
         this._.globalAlpha = 1;
         this._.beginPath();
         this._.moveTo(point.x, point.y);
-        this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
+        this._.arc(point.x, point.y, this.dotRadius, 0, Math.PI*2, false);
         this._.closePath();
         this._.fill();
       }
@@ -282,7 +291,9 @@
 
       this._preDraw();
 
-      this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+      if (this.clearEveryFrame) {
+        this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+      }
       this.render(this.frame);
 
       this._postDraw();
@@ -348,6 +359,10 @@
       this.frame = 0;
       this.partialFrame = 0;
       this.stopped = false;
+
+      if (this.clearOnReset) {
+        this._.clearRect(0, 0, this.fullWidth, this.fullHeight);
+      }
     }
 
   };

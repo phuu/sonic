@@ -21,25 +21,6 @@ var done = function () {
   setTimeout(timers[current].play.bind(timers[current]), 500);
 };
 
-var draw = function(point, indexD, frameD) {
-    // point is an object { x: n, y: n, progress: n, index: n }
-    // point.progress is progress of point (0..1)
-    // relative to other points in that single draw
-
-    // indexD is relative to the drawn shape (the tail)
-    // frameD is the current frame (0..1)
-    // pointIndex is the the point's overall index within the points array
-
-    if (point.index < this.frame) {
-      this._.globalAlpha = 1;
-      this._.beginPath();
-      this._.moveTo(point.x, point.y);
-      this._.arc(point.x, point.y, 3, 0, Math.PI*2, false);
-      this._.closePath();
-      this._.fill();
-    }
-};
-
 var timers = [
 new Sonic({
     width: 200,
@@ -56,7 +37,7 @@ new Sonic({
       ['arc', 40, 60, 30, 90, 270],
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 }),
 new Sonic({
     width: 200,
@@ -70,7 +51,7 @@ new Sonic({
       ['arc', 150, 60, 30, -90, 270]
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 }),
 new Sonic({
     width: 200,
@@ -87,7 +68,7 @@ new Sonic({
       ['arc', 40, 60, 30, 90, 270],
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 }),
 new Sonic({
     width: 200,
@@ -104,7 +85,7 @@ new Sonic({
       ['arc', 40, 60, 30, 90, 270],
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 }),
 new Sonic({
     width: 200,
@@ -121,7 +102,7 @@ new Sonic({
       ['arc', 110, 60, 4, -90, 270]
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 }),
 new Sonic({
     width: 200,
@@ -138,7 +119,7 @@ new Sonic({
       ['arc', 40, 60, 30, 90, 270],
     ],
     complete: done,
-    step: draw
+    step: 'timer'
 })];
 
 timers.forEach(function (timer) {
