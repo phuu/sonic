@@ -1,7 +1,7 @@
 /*
  * Sonic 0.3
  * --
- * https://github.com/phuu/Sonic
+ * https://github.com/phuu/sonic
  * --
  * Originally by James Padolsey: https://github.com/padolsey/Sonic
  *
@@ -61,6 +61,7 @@
 
     // Hooks
     this._setup = d.setup || emptyFn;
+    this._prePlay = d.prePlay || emptyFn;
     this._preDraw = d.preDraw || emptyFn;
     this._preStep = d.preStep || emptyFn;
     this._postDraw = d._postDraw || emptyFn;
@@ -328,6 +329,7 @@
     play: function() {
 
       this.reset();
+      this._prePlay();
       this.loop();
 
     },

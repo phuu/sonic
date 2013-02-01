@@ -6,6 +6,18 @@
 
 <style>
 body { background: black; }
+.sonic { background-color: green; -webkit-animation: fade 20s linear infinite; }
+@-webkit-keyframes fade {
+  from {
+    background-color: green;
+  }
+  50% {
+    background-color: yellow;
+  }
+  to {
+    background-color: red;
+  }
+}
 </style>
 
 <body>
@@ -30,13 +42,21 @@ var draw = function(point, i, f) {
   // f is the current frame (0..1)
   // pointIndex is the the point's overall index within the points array
 
+  this._.save();
+  this._.globalCompositeOperation = 'destination-out';
   this._.globalAlpha = 1;
   this._.beginPath();
   this._.moveTo(point.x, point.y);
   this._.arc(point.x, point.y, this.dotRadius, 0, Math.PI*2, false);
   this._.closePath();
   this._.fill();
+  this._.restore();
 
+};
+
+var fill = function () {
+  this._.fillStyle = 'black';
+  this._.fillRect(0, 0, this.fullWidth, this.fullHeight);
 };
 
 var timers = [
@@ -70,6 +90,7 @@ new Sonic({
           ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
         ['line', 20, 10, 50, 10],
     ],
+    prePlay: fill,
     step: draw,
     complete: done
 }),
@@ -103,6 +124,7 @@ new Sonic({
           ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
         ['line', 20, 10, 50, 10],
     ],
+    prePlay: fill,
     step: draw,
     complete: done
 }),
@@ -136,6 +158,7 @@ new Sonic({
           ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
         ['line', 20, 10, 50, 10],
     ],
+    prePlay: fill,
     step: draw,
     complete: done
 }),
@@ -169,6 +192,7 @@ new Sonic({
           ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
         ['line', 20, 10, 50, 10],
     ],
+    prePlay: fill,
     step: draw,
     complete: done
 }),
@@ -202,6 +226,7 @@ new Sonic({
           ['bezier', 10, 20, 20, 10, 10, 10, 10, 10],
         ['line', 20, 10, 50, 10],
     ],
+    prePlay: fill,
     step: draw,
     complete: done
 })];
